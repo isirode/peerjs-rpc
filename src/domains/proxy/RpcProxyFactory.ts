@@ -21,7 +21,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
 
   proxy<ObjectType extends IRpcObject>(target: ObjectType, options?: IRpcObjectOptions): ObjectType {
     const self = this;
-    
+
     const proxy = new Proxy(target, {
       set(obj, prop: string | Symbol, newValue) {
         if (prop instanceof Symbol) {
@@ -67,16 +67,20 @@ export class RpcProxyFactory implements IRpcProxyFactory {
 
         const nextTarget: IRpcCallTarget = clone(target.nextTarget);
 
+        if (AsyncFunction === undefined) {
+          console.warn(`AsyncFunction is undefined`);
+        }
+
         const value = obj[prop];
         if (nextTarget.isLocal) {
           if (value instanceof AsyncFunction) {
             return function (...args: any[]) {
-              console.log(args);
+              console.log('returning local result', args);
               return (value as any).apply(this === receiver ? obj : this, args);
             };
           } else if (value instanceof Function) {
             return function (...args: any[]) {
-              console.log(args);
+              console.log('returning local result', args);
               return value.apply(this === receiver ? obj : this, args);
             };
           } else {
@@ -87,6 +91,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
         console.log(typeof value)
         if (value instanceof Function || value instanceof AsyncFunction) {
 
+          console.log('is function, proxying');
           // Info : cannot use these
           // Reflect.getMetadata("design:returntype", obj, prop);
           // ReturnType<typeof value>();
@@ -109,6 +114,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
             return result;
           };
         }
+        console.log('is not a function, returning the value');
         return value;
       },
       

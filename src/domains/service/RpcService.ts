@@ -56,62 +56,64 @@ export class RpcService implements IRpcService {
         serverHandler: {
           handle: async function (request: Request<IRpcFetchRequest>): Promise<Response<IRpcFetchResponse>> {
 
-           let response: Response<IRpcFetchResponse>;
-           let rpcResponse: IRpcFetchResponse;
-           let object: IRpcObject;
-
-           try {
-            object = self.store.find(request.content.targetId);
-            if (object === undefined) {
-             throw new Error(`rpc of id '${request.content.targetId} was not found in store of user ${self.p2pRoom.localUser.name}:${self.p2pRoom.localUser.peer.id}`);
-            }
-
-            const nextTarget: IRpcCallTarget = clone(object.nextTarget);
-            nextTarget.isLocal = true;
-
-            let result: unknown;
-            const prop = object[request.content.property];
-            switch(request.content.rpcCallType) {
-              case RpcCallType.MethodCall:
-                if (prop instanceof Function || prop instanceof AsyncFunction) {
-                  // TODO : implement multi arguments request here
-                  // if arg is instance of array
-                  result = await prop(request.content.arguments);
-                } else {
-                  throw new Error(`property '${request.content.property}' is not a method but the RpcCallType is '${request.content.rpcCallType}'`)
-                }
-                break;
-              case RpcCallType.Set:
-                if (request.content.arguments.length !== 0) {
-                  throw new Error(`arguments length should be exactly 0 when the RpcCallType is '${request.content.rpcCallType}'`);
-                }
-                object[request.content.property] = request.content.arguments[0];
-                result = undefined;
-                break;
-              default:
-                throw new Error(`unknown RpcCallType '${request.content.rpcCallType}'`);
-            }
+            console.log(`handling request`, request);
             
-            rpcResponse = {
-              error: undefined,
-              result: result
+            let response: Response<IRpcFetchResponse>;
+            let rpcResponse: IRpcFetchResponse;
+            let object: IRpcObject;
+
+            try {
+              object = self.store.find(request.content.targetId);
+              if (object === undefined) {
+              throw new Error(`rpc of id '${request.content.targetId} was not found in store of user ${self.p2pRoom.localUser.name}:${self.p2pRoom.localUser.peer.id}`);
+              }
+
+              const nextTarget: IRpcCallTarget = clone(object.nextTarget);
+              nextTarget.isLocal = true;
+
+              let result: unknown;
+              const prop = object[request.content.property];
+              switch(request.content.rpcCallType) {
+                case RpcCallType.MethodCall:
+                  if (prop instanceof Function || prop instanceof AsyncFunction) {
+                    // TODO : implement multi arguments request here
+                    // if arg is instance of array
+                    result = await prop(request.content.arguments);
+                  } else {
+                    throw new Error(`property '${request.content.property}' is not a method but the RpcCallType is '${request.content.rpcCallType}'`)
+                  }
+                  break;
+                case RpcCallType.Set:
+                  if (request.content.arguments.length !== 0) {
+                    throw new Error(`arguments length should be exactly 0 when the RpcCallType is '${request.content.rpcCallType}'`);
+                  }
+                  object[request.content.property] = request.content.arguments[0];
+                  result = undefined;
+                  break;
+                default:
+                  throw new Error(`unknown RpcCallType '${request.content.rpcCallType}'`);
+              }
+              
+              rpcResponse = {
+                error: undefined,
+                result: result
+              }
+              response = {
+                id: request.id,
+                payload: rpcResponse
+              }
+              return response;
+            } catch (err: unknown) {
+              rpcResponse = {
+                result: undefined,
+                error: err as Error
+              }
+              response = {
+                id: request.id,
+                payload: rpcResponse
+              }
+              return response;
             }
-            response = {
-              id: request.id,
-              payload: rpcResponse
-            }
-            return response;
-           } catch (err: unknown) {
-            rpcResponse = {
-              result: undefined,
-              error: err as Error
-            }
-            response = {
-              id: request.id,
-              payload: rpcResponse
-            }
-            return response;
-           }
           }
         },
       })
