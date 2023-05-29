@@ -62,7 +62,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
         
         return true;
       },
-      async get(obj, prop: string | Symbol, receiver) {
+      get(obj, prop: string | Symbol, receiver) {
         if (prop instanceof Symbol) {
           throw new Error(`Symbol keys are not supported`);
         }
