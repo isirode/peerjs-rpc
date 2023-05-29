@@ -28,6 +28,8 @@ export class RpcProxyFactory implements IRpcProxyFactory {
           throw new Error(`Symbol keys are not supported`);
         }
 
+        console.log('proxy:set');
+
         const nextTarget: IRpcCallTarget = clone(target.nextTarget);
 
         const value = obj[prop];
@@ -65,6 +67,8 @@ export class RpcProxyFactory implements IRpcProxyFactory {
           throw new Error(`Symbol keys are not supported`);
         }
 
+        console.log('proxy:get');
+
         const nextTarget: IRpcCallTarget = clone(target.nextTarget);
 
         if (AsyncFunction === undefined) {
@@ -73,6 +77,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
 
         const value = obj[prop];
         if (nextTarget.isLocal) {
+          console.log('is local, not proxying');
           if (value instanceof AsyncFunction) {
             return function (...args: any[]) {
               console.log('returning local result', args);
@@ -88,7 +93,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
           }
         }
 
-        console.log(typeof value)
+        console.log('type of value : ', typeof value)
         if (value instanceof Function || value instanceof AsyncFunction) {
 
           console.log('is function, proxying');
@@ -101,6 +106,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
           // I return a result but maybe we should not
 
           return async function (...args: any[]) {
+            console.log('async function for fetching remote response');
             console.log(args);
             const request: IRpcFetchRequest = {
               targetId: nextTarget.targetId ?? target.id,
@@ -123,6 +129,8 @@ export class RpcProxyFactory implements IRpcProxyFactory {
   }
 
   async sendRequest<ObjectType extends IRpcObject>(target: Omit<ObjectType, "nextTarget">, nextTarget: IRpcCallTarget, request: IRpcFetchRequest, options?: IRpcObjectOptions): Promise<unknown> {
+
+    console.log(`send request`);
 
     if (nextTarget.userTarget) {
               
