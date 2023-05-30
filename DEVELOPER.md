@@ -63,3 +63,6 @@ Or
 ## TODO
 
 - Implement the tests
+
+- Detect infinite recursive calls
+  - Can use a request id + calls count

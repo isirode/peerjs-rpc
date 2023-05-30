@@ -97,6 +97,9 @@ export class RpcService implements IRpcService {
                 default:
                   throw new Error(`unknown RpcCallType '${request.content.rpcCallType}'`);
               }
+
+              console.log('prop:', prop);
+              console.log('result:', result);
               
               rpcResponse = {
                 error: undefined,
