@@ -61,15 +61,19 @@ export class RpcService implements IRpcService {
             let response: Response<IRpcFetchResponse>;
             let rpcResponse: IRpcFetchResponse;
             let object: IRpcObject;
+            let nextTarget: IRpcCallTarget;
 
             try {
               object = self.store.find(request.content.targetId);
               if (object === undefined) {
-              throw new Error(`rpc of id '${request.content.targetId} was not found in store of user ${self.p2pRoom.localUser.name}:${self.p2pRoom.localUser.peer.id}`);
+                throw new Error(`rpc of id '${request.content.targetId} was not found in store of user ${self.p2pRoom.localUser.name}:${self.p2pRoom.localUser.peer.id}`);
               }
 
-              const nextTarget: IRpcCallTarget = clone(object.nextTarget);
-              nextTarget.isLocal = true;
+              console.log('object found', object);
+
+              nextTarget = clone(object.nextTarget);
+
+              object.nextTarget.isLocal = true;
 
               let result: unknown;
               const prop = object[request.content.property];
@@ -104,6 +108,11 @@ export class RpcService implements IRpcService {
               }
               return response;
             } catch (err: unknown) {
+              // FIXME : this just ensure that things are put back as they were
+              // Is this enough ?
+              if (object !== undefined && nextTarget !== undefined) {
+                object.nextTarget = nextTarget;
+              }
               rpcResponse = {
                 result: undefined,
                 error: err as Error

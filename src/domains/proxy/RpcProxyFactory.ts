@@ -28,7 +28,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
           throw new Error(`Symbol keys are not supported`);
         }
 
-        console.log('proxy:set');
+        console.log('proxy:set', obj.nextTarget);
 
         const nextTarget: IRpcCallTarget = clone(target.nextTarget);
 
@@ -67,9 +67,13 @@ export class RpcProxyFactory implements IRpcProxyFactory {
           throw new Error(`Symbol keys are not supported`);
         }
 
-        console.log('proxy:get');
+        if (prop === 'id' || prop === 'nextTarget') {
+          return obj[prop];
+        }
 
-        const nextTarget: IRpcCallTarget = clone(target.nextTarget);
+        console.log('proxy:get', obj.nextTarget);
+
+        const nextTarget: IRpcCallTarget = clone(obj.nextTarget);
 
         if (AsyncFunction === undefined) {
           console.warn(`AsyncFunction is undefined`);
@@ -108,6 +112,9 @@ export class RpcProxyFactory implements IRpcProxyFactory {
           return async function (...args: any[]) {
             console.log('async function for fetching remote response');
             console.log(args);
+            console.log(args.join(','));
+            console.log('target', target);
+            console.log('obj', obj);
             const request: IRpcFetchRequest = {
               targetId: nextTarget.targetId ?? target.id,
               property: prop,
@@ -115,7 +122,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
               rpcCallType: RpcCallType.MethodCall
             }
 
-            const result = self.sendRequest(target, nextTarget, request, options);
+            const result = self.sendRequest(obj, nextTarget, request, options);
 
             return result;
           };
@@ -130,7 +137,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
 
   async sendRequest<ObjectType extends IRpcObject>(target: Omit<ObjectType, "nextTarget">, nextTarget: IRpcCallTarget, request: IRpcFetchRequest, options?: IRpcObjectOptions): Promise<unknown> {
 
-    console.log(`send request`);
+    console.log(`send request`, request);
 
     if (nextTarget.userTarget) {
               
