@@ -150,7 +150,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
     } else if (nextTarget.usersTarget) {
       const responses = await this.channel.fetchFromUsers(request, nextTarget.usersTarget);
 
-      const errors = responses.filter((x) => x.payload.error !== undefined).map((x) => x.payload.error);
+      const errors = responses.filter((x) => x.payload.error !== undefined && x.payload.error !== null).map((x) => x.payload.error);
 
       if (errors.length !== 0) {
         throw new RpcAggregateError('an error occurred while fetching a rpc request', errors, request, responses);
