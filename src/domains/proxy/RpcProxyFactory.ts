@@ -6,6 +6,7 @@ import { IRpcCallTarget, IRpcObject } from "../model/IRpcObject";
 import { IRpcObjectOptions } from "../model/IRpcObjectOptions";
 import { RpcAggregateError } from "./RpcAggregateError";
 import * as rdfc from 'rfdc';
+import { Response, Request } from "peerjs-request-response";
 
 const clone = rdfc();
 
@@ -150,7 +151,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
     } else if (nextTarget.usersTarget) {
       const responses = await this.channel.fetchFromUsers(request, nextTarget.usersTarget);
 
-      const errors = responses.filter((x) => x.payload.error !== undefined && x.payload.error !== null).map((x) => x.payload.error);
+      const errors = this.getErrors(responses);
 
       if (errors.length !== 0) {
         throw new RpcAggregateError('an error occurred while fetching a rpc request', errors, request, responses);
@@ -162,7 +163,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
     } else {
       const responses = await this.channel.fetchFromAllUsers(request);
 
-      const errors = responses.filter((x) => x.payload.error !== undefined).map((x) => x.payload.error);
+      const errors = this.getErrors(responses);
 
       if (errors.length !== 0) {
         throw new RpcAggregateError('an error occurred while fetching a rpc request', errors, request, responses);
@@ -173,5 +174,9 @@ export class RpcProxyFactory implements IRpcProxyFactory {
       return bodies;
     }
 
+  }
+
+  protected getErrors(responses: Response<IRpcFetchResponse>[]): Error[] {
+    return responses.filter((x) => x.payload.error !== undefined && x.payload.error !== null).map((x) => x.payload.error);
   }
 }

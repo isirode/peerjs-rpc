@@ -1,6 +1,6 @@
 {
   "name": "peerjs-rpc",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "This is a library based on PeerJS that allow to send RPC messages inside a P2PRoom",
   "main": "dist/main.js",
   "source": "src/index.ts",
