@@ -16,7 +16,15 @@ export interface IRpcFetchRequest {
   rpcCallType: RpcCallType;
 }
 
+export interface IError {
+  columnNumber: number | undefined;
+  lineNumber: number | undefined;
+  filename: string | undefined;
+  message: string | undefined;
+  stack: string | undefined;
+}
+
 export interface IRpcFetchResponse {
   result: unknown;
-  error: Error | undefined;
+  error: IError | undefined;
 }

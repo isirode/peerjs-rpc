@@ -113,12 +113,19 @@ export class RpcService implements IRpcService {
             } catch (err: unknown) {
               // FIXME : this just ensure that things are put back as they were
               // Is this enough ?
+              const errAsAny = err as any;
               if (object !== undefined && nextTarget !== undefined) {
                 object.nextTarget = nextTarget;
               }
               rpcResponse = {
                 result: undefined,
-                error: err as Error
+                error: {
+                  lineNumber: errAsAny.lineNumber,
+                  columnNumber: errAsAny.columnNumber,
+                  filename: errAsAny.filename,
+                  message: errAsAny.message,
+                  stack: errAsAny.stack
+                }
               }
               response = {
                 id: request.id,

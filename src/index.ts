@@ -1,5 +1,6 @@
 export type { Identifiable } from './domains/model/Identifiable';
 
+export type { IError } from './domains/model/IRpcMessage';
 export type { IRpcMessage } from './domains/model/IRpcMessage';
 export { RpcCallType } from './domains/model/IRpcMessage';
 export type { IRpcFetchRequest } from './domains/model/IRpcMessage';
