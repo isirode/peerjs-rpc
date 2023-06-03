@@ -82,7 +82,7 @@ export class RpcService implements IRpcService {
                   if (prop instanceof Function || prop instanceof AsyncFunction) {
                     // TODO : implement multi arguments request here
                     // if arg is instance of array
-                    result = await prop(request.content.arguments);
+                    result = await prop(...request.content.arguments);
                   } else {
                     throw new Error(`property '${request.content.property}' is not a method but the RpcCallType is '${request.content.rpcCallType}'`)
                   }

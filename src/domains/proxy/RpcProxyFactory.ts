@@ -1,5 +1,5 @@
 // import { isAsyncFunction } from "util/types";
-import { IRpcFetchRequest, IRpcFetchResponse, IRpcMessage, RpcCallType } from "../model/IRpcMessage";
+import { IError, IRpcFetchRequest, IRpcFetchResponse, IRpcMessage, RpcCallType } from "../model/IRpcMessage";
 import { IRpcProxyFactory } from "./IRpcProxyFactory";
 import { IChannel } from 'peerjs-room';
 import { IRpcCallTarget, IRpcObject } from "../model/IRpcObject";
@@ -176,7 +176,7 @@ export class RpcProxyFactory implements IRpcProxyFactory {
 
   }
 
-  protected getErrors(responses: Response<IRpcFetchResponse>[]): Error[] {
+  protected getErrors(responses: Response<IRpcFetchResponse>[]): IError[] {
     return responses.filter((x) => x.payload.error !== undefined && x.payload.error !== null).map((x) => x.payload.error);
   }
 }
